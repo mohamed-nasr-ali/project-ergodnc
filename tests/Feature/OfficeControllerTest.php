@@ -74,27 +74,27 @@ class OfficeControllerTest extends TestCase
 
     public function testItIncludesImagesTagsAndUser(): void
     {
-        $user=User::factory()->create();
-        $tag=Tag::factory()->create();
-        $office=Office::factory()->for($user)->create();
+        $user = User::factory()->create();
+        $tag = Tag::factory()->create();
+        $office = Office::factory()->for($user)->create();
         $office->tags()->attach($tag);
-        $office->images()->create(['path'=>'image.jpg']);
+        $office->images()->create(['path' => 'image.jpg']);
 
         $response = $this->get(route('api.offices.index'));
 
         $response->assertOk();
         $this->assertIsArray($response->json('data')[0]['tags']);
         $this->assertIsArray($response->json('data')[0]['images']);
-        $this->assertEquals($user->id,$response->json('data')[0]['user']['id']);
-        $this->assertCount(1,$response->json('data')[0]['tags']);
-        $this->assertCount(1,$response->json('data')[0]['images']);
+        $this->assertEquals($user->id, $response->json('data')[0]['user']['id']);
+        $this->assertCount(1, $response->json('data')[0]['tags']);
+        $this->assertCount(1, $response->json('data')[0]['images']);
     }
 
     public function testItReturnsTheNumberOfActiveReservations(): void
     {
-        $office=Office::factory()->create();
-        Reservation::factory()->for($office)->create(['status'=>ReservationStatus::STATUS_ACTIVE->value]);
-        Reservation::factory()->for($office)->create(['status'=>ReservationStatus::STATUS_CANCELLED->value]);
+        $office = Office::factory()->create();
+        Reservation::factory()->for($office)->create(['status' => ReservationStatus::STATUS_ACTIVE->value]);
+        Reservation::factory()->for($office)->create(['status' => ReservationStatus::STATUS_CANCELLED->value]);
 
         $response = $this->get(route('api.offices.index'));
         $response->assertOk();
@@ -104,17 +104,17 @@ class OfficeControllerTest extends TestCase
 
     public function testItOrdersByDistanceWhenCoordinatesAreProvides(): void
     {
-        $office1 = Office::factory()->create([
-                                                 'lat' => '39.74051727562952',
-                                                 'lng' => '-8.770375324893696',
-                                                 'title' => 'Leiria'
-                                             ]);
+        Office::factory()->create([
+                                      'lat' => '39.74051727562952',
+                                      'lng' => '-8.770375324893696',
+                                      'title' => 'Leiria'
+                                  ]);
 
-        $office2 = Office::factory()->create([
-                                                 'lat' => '39.07753883078113',
-                                                 'lng' => '-9.281266331143293',
-                                                 'title' => 'Torres Vedras'
-                                             ]);
+        Office::factory()->create([
+                                      'lat' => '39.07753883078113',
+                                      'lng' => '-9.281266331143293',
+                                      'title' => 'Torres Vedras'
+                                  ]);
 
         $response = $this->get('/api/offices?lat=38.720661384644046&lng=-9.16044783453807');
 
@@ -132,21 +132,21 @@ class OfficeControllerTest extends TestCase
     /** @test */
     public function itShowsTheOffice(): void
     {
-        $user=User::factory()->create();
-        $tag=Tag::factory()->create();
-        $office=Office::factory()->for($user)->create();
+        $user = User::factory()->create();
+        $tag = Tag::factory()->create();
+        $office = Office::factory()->for($user)->create();
         $office->tags()->attach($tag);
-        $office->images()->create(['path'=>'image.jpg']);
+        $office->images()->create(['path' => 'image.jpg']);
 
-        $response=$this->get(route('api.offices.show',$office->id));
+        $response = $this->get(route('api.offices.show', $office->id));
 
         $response->assertOk();
-        $this->assertEquals($office->id,$response->json('data')['id']);
+        $this->assertEquals($office->id, $response->json('data')['id']);
         $this->assertIsArray($response->json('data')['images']);
         $this->assertIsArray($response->json('data')['tags']);
         $this->assertNotEmpty($response->json('data')['tags']);
         $this->assertNotEmpty($response->json('data')['images']);
-        $this->assertEquals($user->id,$response->json('data')['user']['id']);
+        $this->assertEquals($user->id, $response->json('data')['user']['id']);
     }
 
 
