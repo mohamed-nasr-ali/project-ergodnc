@@ -16,6 +16,19 @@ class Office extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $fillable=[
+        'user_id',
+        'title',
+        'description',
+        'lat',
+        'lng',
+        'address_line1',
+        'address_line2',
+        'approval_status',
+        'hidden',
+        'price_per_day',
+        'monthly_discount',
+    ];
     protected $casts=[
         'lat'=>'decimal:8',
         'lng'=>'decimal:8',
@@ -49,9 +62,9 @@ class Office extends Model
     {
         return $builder
             ->select()
-            ->selectRaw(
-                'SQRT(POW(69.1 * (lat - ?), 2) + POW(69.1 * (? - lng) * COS(lat / 57.3), 2)) AS distance',
+            ->orderByRaw(
+                'SQRT(POW(69.1 * (lat - ?), 2) + POW(69.1 * (? - lng) * COS(lat / 57.3), 2))',
                 [$lat, $lng]
-            )->orderBy('distance');
+            );
     }
 }
