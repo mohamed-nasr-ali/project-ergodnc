@@ -12,3 +12,9 @@ Route::get('/offices/{office}', [OfficeController::class, 'show'])->name('office
 Route::post('/offices', [OfficeController::class, 'create'])
     ->middleware(['auth:sanctum','verified','ability:office.create'])
     ->name('offices.create');
+Route::put('/offices/{office}', [OfficeController::class,'update'])
+    ->middleware(['auth:sanctum','verified','ability:office.update','can:update,office'])
+    ->name('offices.update');
+Route::delete('/offices/{office}', [OfficeController::class,'destroy'])
+    ->middleware(['auth:sanctum','verified','ability:office.destroy','can:destroy,office'])
+    ->name('offices.destroy');

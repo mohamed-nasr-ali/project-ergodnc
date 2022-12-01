@@ -30,4 +30,13 @@ class OfficeFactory extends Factory
             'monthly_discount' => 0
         ];
     }
+
+    public function pending():Factory
+    {
+        return  $this->state(['approval_status' => OfficeApprovalStatus::APPROVAL_PENDING]);
+    }
+    public function hidden():Factory
+    {
+        return  $this->state(['hidden' => true]);
+    }
 }
