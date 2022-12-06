@@ -16,17 +16,16 @@ class CreateReservationsTable extends Migration
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id');
-            $table->foreignId('office_id');
+            $table->foreignId('user_id')->constrained()
+            ->cascadeOnUpdate()
+            ->cascadeOnDelete();
+            $table->foreignId('office_id')->constrained()->cascadeOnUpdate()
+            ->cascadeOnDelete();
             $table->integer('price');
-            $table->tinyInteger('status')->default(ReservationStatus::STATUS_ACTIVE->value);
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->tinyInteger('status')->default(ReservationStatus::STATUS_ACTIVE->value)->index();
+            $table->date('start_date')->index();
+            $table->date('end_date')->index();
             $table->timestamps();
-
-            $table->index(['user_id', 'status']);
-            $table->index(['office_id', 'status']);
-            $table->index(['office_id', 'status', 'start_date', 'end_date']);
         });
     }
 

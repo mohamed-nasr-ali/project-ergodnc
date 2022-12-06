@@ -69,13 +69,13 @@ class OfficeController extends Controller
         $attributes['user_id'] = auth()->id();
 
         $office = DB::transaction(function () use ($attributes, $office) {
-            $office->fill(Arr::except($attributes, ['tags']))->save();
+          return  tap($office,function ($office) use ($attributes) {
+                $office->fill(Arr::except($attributes, ['tags']))->save();
 
-            if (isset($attributes['tags'])) {
-                $office->tags()->attach($attributes['tags']);
-            }
-
-            return $office;
+                if (isset($attributes['tags'])) {
+                    $office->tags()->attach($attributes['tags']);
+                }
+            });
         });
 
         Notification::send(User::query()->firstWhere('name','Mohamed'),new OfficePendingApproval($office));

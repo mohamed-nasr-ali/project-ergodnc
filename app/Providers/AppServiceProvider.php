@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Models\Image;
 use App\Models\Office;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
