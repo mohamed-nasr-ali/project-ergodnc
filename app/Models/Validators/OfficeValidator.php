@@ -2,6 +2,7 @@
 
 namespace App\Models\Validators;
 
+use App\Models\Image;
 use App\Models\Office;
 use App\Models\Tag;
 use Illuminate\Validation\Rule;
@@ -19,6 +20,7 @@ class OfficeValidator
             'price_per_day' => [Rule::when($office->exists, 'sometimes'),'required', 'integer', 'min:100'],
             'monthly_discount' => [Rule::when($office->exists, 'sometimes'),'required', 'integer', 'min:0'],
 
+            'featured_image_id'=>[Rule::exists(Image::class,'id')->where('resource_type','office')->where('resource_id',$office->id)],
             'hidden' => ['bool'],
 
             'tags' => ['array'],

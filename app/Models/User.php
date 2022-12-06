@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -23,7 +24,9 @@ class User extends Authenticatable
         'email',
         'password',
     ];
-
+    protected $guarded=[
+        'is_admin'
+    ];
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -41,10 +44,16 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_admin'=>'boolean'
     ];
 
     public function offices(): HasMany
     {
         return $this->hasMany(Office::class);
+    }
+
+    public function scopeIsAdmin(Builder $builder): Builder
+    {
+        return $builder->where('is_admin',true);
     }
 }

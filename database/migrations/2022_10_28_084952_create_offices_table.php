@@ -27,6 +27,7 @@ class CreateOfficesTable extends Migration
             $table->boolean('hidden')->default(false);
             $table->integer('price_per_day');
             $table->integer('monthly_discount')->default(0);
+            $table->foreignId('featured_image_id')->index()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -156,7 +156,7 @@ class OfficeControllerTest extends TestCase
     /** @test */
     public function itCreatesAnOffice(): void
     {
-        $admin = User::factory(['name' => 'Mohamed'])->create();
+        $admin = User::factory(['is_admin' => true])->create();
 
         $user = User::factory()->createQuietly();
         $tag1 = Tag::factory()->create();
@@ -283,7 +283,7 @@ class OfficeControllerTest extends TestCase
     /** @test */
     public function itMarksOfficeToPendingWhenAttributesIsDirty(): void
     {
-        $admin = User::factory(['name' => 'Mohamed'])->create();
+        $admin = User::factory(['is_admin' => true])->create();
 
         Notification::fake();
 
@@ -334,5 +334,39 @@ class OfficeControllerTest extends TestCase
         $this->assertNotSoftDeleted($office);
     }
 
+    public function testItListOfficesIncludingHiddenAndApprovedIfFilteringForCurrentLoggedInUser(): void
+    {
+        $user=User::factory()->create();
+        Office::factory(3)->for($user)->create();
 
+        Office::factory()->for($user)->pending()->create();
+        Office::factory()->for($user)->hidden()->create();
+
+        $this->actingAs($user);
+
+        $response = $this->get(route('api.offices.index')."?user_id=$user->id");
+
+        $response->assertOk();
+        $response->assertJsonCount(5, 'data');
+    }
+
+    /** @test */
+    public function itUpdateAnFeaturedImage(): void
+    {
+        $user = User::factory()->createQuietly();
+        $office = Office::factory()->for($user)->create();
+
+
+       $image= $office->images()->create(['path'=>'image.jpg']);
+
+        $this->actingAs($user);
+
+        $response = $this->putJson(
+            route('api.offices.update', $office),
+            ['featured_image_id' =>$image->id]
+        );
+
+        $response->assertOk()
+            ->assertJsonPath('data.featured_image_id', $image->id);
+    }
 }

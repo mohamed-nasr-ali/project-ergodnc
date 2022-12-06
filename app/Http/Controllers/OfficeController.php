@@ -24,8 +24,13 @@ class OfficeController extends Controller
     public function index(): AnonymousResourceCollection
     {
         $offices = Office::query()
-            ->where('approval_status', OfficeApprovalStatus::APPROVAL_APPROVED)
-            ->where('hidden', false)
+            ->when(
+                request('user_id') && auth()->check() && request('user_id') == auth()->id(),
+                fn(Builder $builder) => $builder,
+                fn(Builder $builder) => $builder
+                    ->where('approval_status', OfficeApprovalStatus::APPROVAL_APPROVED)
+                    ->where('hidden', false)
+            )
             ->when(request('user_id'), fn(Builder $builder, $userId) => $builder->whereUserId($userId))
             ->when(
                 request('visitor_id'),
@@ -69,7 +74,7 @@ class OfficeController extends Controller
         $attributes['user_id'] = auth()->id();
 
         $office = DB::transaction(function () use ($attributes, $office) {
-          return  tap($office,function ($office) use ($attributes) {
+            return tap($office, function ($office) use ($attributes) {
                 $office->fill(Arr::except($attributes, ['tags']))->save();
 
                 if (isset($attributes['tags'])) {
@@ -78,20 +83,18 @@ class OfficeController extends Controller
             });
         });
 
-        Notification::send(User::query()->firstWhere('name','Mohamed'),new OfficePendingApproval($office));
+        Notification::send(User::query()->isAdmin()->get(), new OfficePendingApproval($office));
 
         return OfficeResource::make($office);
     }
 
     public function update(Office $office): OfficeResource
     {
-        $this->authorize('update', $office);
-
         $attributes = (new OfficeValidator())->validate($office, request()->all());
 
         $office->fill(Arr::except($attributes, ['tags']));
 
-        if ($requireReview=$office->isDirty(['lat', 'lng', 'price'])) {
+        if ($requireReview = $office->isDirty(['lat', 'lng', 'price'])) {
             $office->fill(['approval_status' => OfficeApprovalStatus::APPROVAL_PENDING]);
         }
 
@@ -103,8 +106,8 @@ class OfficeController extends Controller
             }
         });
 
-        if ($requireReview){
-            Notification::send(User::query()->firstWhere('name','Mohamed'),new OfficePendingApproval($office));
+        if ($requireReview) {
+            Notification::send(User::query()->isAdmin()->get(), new OfficePendingApproval($office));
         }
 
         return OfficeResource::make($office->load(['images', 'tags', 'user']));
@@ -117,10 +120,10 @@ class OfficeController extends Controller
      */
     public function destroy(Office $office): void
     {
-        $this->authorize('destroy',$office);
-
-        throw_if($office->reservations()->where('status',ReservationStatus::STATUS_ACTIVE)->exists(),
-             ValidationException::withMessages(['office'=>'cannot delete this office']));
+        throw_if(
+            $office->reservations()->where('status', ReservationStatus::STATUS_ACTIVE)->exists(),
+            ValidationException::withMessages(['office' => 'cannot delete this office'])
+        );
 
         $office->delete();
     }
