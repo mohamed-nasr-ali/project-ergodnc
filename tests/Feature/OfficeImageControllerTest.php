@@ -19,7 +19,7 @@ class OfficeImageControllerTest extends TestCase
      */
     public function itUploadsAndImageAndStoreItUnderTheOffice(): void
     {
-        Storage::fake('public');
+        Storage::fake();
 
         $user = User::factory()->create();
         $office = Office::factory()->for($user)->create();
@@ -32,13 +32,13 @@ class OfficeImageControllerTest extends TestCase
 
         $response->assertCreated();
 
-        Storage::disk('public')->assertExists($response->json('data.path'));
+        Storage::assertExists($response->json('data.path'));
     }
 
     /** @test */
     public function itDeleteAndImage(): void
     {
-        Storage::fake('public')->put('/office_image.jpg', 'empty');
+        Storage::fake()->put('/office_image.jpg', 'empty');
 
         $user = User::factory()->create();
         $office = Office::factory()->for($user)->create();
@@ -57,13 +57,13 @@ class OfficeImageControllerTest extends TestCase
         $this->assertModelMissing($image1);
         $this->assertModelExists($image2);
 
-        Storage::disk('public')->assertMissing('office_image.jpg');
+        Storage::assertMissing('office_image.jpg');
     }
 
     /** @test */
     public function itDoesntDeleteTheOnlyImage(): void
     {
-        Storage::fake('public')->put('/office_image.jpg', 'empty');
+        Storage::fake()->put('/office_image.jpg', 'empty');
 
         $user = User::factory()->create();
         $office = Office::factory()->for($user)->create();
@@ -79,7 +79,7 @@ class OfficeImageControllerTest extends TestCase
         $response->assertUnprocessable();
         $response->assertJsonValidationErrorFor('image');
 
-        Storage::disk('public')->assertExists('office_image.jpg');
+        Storage::assertExists('office_image.jpg');
     }
 
     /** @test */
@@ -120,7 +120,6 @@ class OfficeImageControllerTest extends TestCase
             route('api.offices.images.destroy', ['office' => $office1->id, 'image' => $image->id])
         );
 
-        $response->assertUnprocessable();
-        $response->assertJsonValidationErrors(['image'=>'cannot delete un belonged image.']);
+        $response->assertNotFound();
     }
 }

@@ -20,7 +20,7 @@ class OfficeImageController extends Controller
     {
         request()->validate(['image'=>['required','file','max:5000','mimes:jpg,png']]);
 
-        $path = request()->file('image')->storePublicly('/',['disk'=>'public']);
+        $path = request()->file('image')->storePublicly('/');
 
         $image = $office->images()->create(['path'=>$path]);
 
@@ -34,11 +34,6 @@ class OfficeImageController extends Controller
      */
     public function destroy(Office $office,Image $image): void
     {
-
-        throw_if($office->images->doesntContain($image),
-            ValidationException::withMessages(['image'=>'cannot delete un belonged image.'])
-        );
-
         throw_if($office->images()->count() === 1,
             ValidationException::withMessages(['image'=>'cannot delete the only image.'])
         );
@@ -46,7 +41,7 @@ class OfficeImageController extends Controller
         throw_if($office->featured_image_id == $image->id,
                  ValidationException::withMessages(['image'=>'cannot delete the featured image.']));
 
-        Storage::disk('public')->delete($image->path);
+        Storage::delete($image->path);
 
         $image->delete();
     }

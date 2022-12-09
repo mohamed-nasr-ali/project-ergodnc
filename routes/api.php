@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\{OfficeController, OfficeImageController, TagController};
+use App\Http\Controllers\{OfficeController, OfficeImageController, TagController, UserReservationController};
 use Illuminate\Support\Facades\Route;
 
 // Tags...
@@ -23,6 +23,14 @@ Route::delete('/offices/{office}', [OfficeController::class,'destroy'])
 Route::post('offices/{office}/images',[OfficeImageController::class,'store'])
     ->middleware(['auth:sanctum','verified','ability:office.update','can:update,office'])
     ->name('offices.images.store');
-Route::delete('offices/{office}/images/{image}',[OfficeImageController::class,'destroy'])
+Route::delete('offices/{office}/images/{image:id}',[OfficeImageController::class,'destroy'])
     ->middleware(['auth:sanctum','verified','ability:office.update','can:update,office'])
     ->name('offices.images.destroy');
+
+
+//User Reservations
+Route::get('/reservations',[UserReservationController::class,'index'])
+    ->middleware(['auth:sanctum','verified','ability:reservation.show'])
+    ->name('reservations.show');
+
+//Route::get('/host/reservations',[\App\Http\Controllers\UserReservationController::class,'index']);

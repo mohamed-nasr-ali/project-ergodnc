@@ -16,6 +16,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -25,7 +26,7 @@ class OfficeController extends Controller
     {
         $offices = Office::query()
             ->when(
-                request('user_id') && auth()->check() && request('user_id') == auth()->id(),
+                request('user_id') && auth()->guard('sanctum')->check() && request('user_id') == auth()->id(),
                 fn(Builder $builder) => $builder,
                 fn(Builder $builder) => $builder
                     ->where('approval_status', OfficeApprovalStatus::APPROVAL_APPROVED)
@@ -124,7 +125,11 @@ class OfficeController extends Controller
             $office->reservations()->where('status', ReservationStatus::STATUS_ACTIVE)->exists(),
             ValidationException::withMessages(['office' => 'cannot delete this office'])
         );
+        $office->images()->each(function ($image) {
+            Storage::delete($image->path);
 
+            $image->delete();
+        });
         $office->delete();
     }
 }

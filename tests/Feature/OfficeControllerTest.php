@@ -12,6 +12,7 @@ use App\Notifications\OfficePendingApproval;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class OfficeControllerTest extends TestCase
@@ -369,4 +370,25 @@ class OfficeControllerTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('data.featured_image_id', $image->id);
     }
+
+    /** @test */
+    public function ifDeleteOfficeImagesWhenOfficeDeleted(): void
+    {
+        $user = User::factory()->create();
+        $office = Office::factory()->for($user)->create();
+
+        $office->images()->create(['path' => 'office_image.jpg']);
+        $image = $office->images()->create(['path' => 'office_featured_image.jpg']);
+        $this->actingAs($user);
+
+        $this->deleteJson(route('api.offices.destroy', $office))
+            ->assertOk();
+
+        $this->assertSoftDeleted($office);
+        $this->assertDeleted($image);
+
+        Storage::assertMissing('office_featured_image.jpg');
+    }
+
+
 }
