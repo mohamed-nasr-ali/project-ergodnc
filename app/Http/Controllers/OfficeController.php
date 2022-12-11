@@ -26,7 +26,7 @@ class OfficeController extends Controller
     {
         $offices = Office::query()
             ->when(
-                request('user_id') && auth()->guard('sanctum')->check() && request('user_id') == auth()->id(),
+                request('user_id') && auth()->check() && request('user_id') == auth()->id(),
                 fn(Builder $builder) => $builder,
                 fn(Builder $builder) => $builder
                     ->where('approval_status', OfficeApprovalStatus::APPROVAL_APPROVED)

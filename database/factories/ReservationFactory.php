@@ -16,7 +16,7 @@ class ReservationFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'user_id' => User::factory(),
@@ -26,5 +26,14 @@ class ReservationFactory extends Factory
             'start_date' => now()->addDay(1)->format('Y-m-d'),
             'end_date' => now()->addDay(5)->format('Y-m-d'),
         ];
+    }
+
+    public function active()
+    {
+        return $this->state([ 'status' => ReservationStatus::STATUS_ACTIVE]);
+    }
+    public function cancelled()
+    {
+        return $this->state([ 'status' => ReservationStatus::STATUS_CANCELLED]);
     }
 }

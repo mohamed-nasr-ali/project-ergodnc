@@ -15,7 +15,7 @@ class OfficeFactory extends Factory
      *
      * @return array
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'user_id' => User::factory(),
@@ -31,11 +31,11 @@ class OfficeFactory extends Factory
         ];
     }
 
-    public function pending():Factory
+    public function pending(): OfficeFactory
     {
         return  $this->state(['approval_status' => OfficeApprovalStatus::APPROVAL_PENDING]);
     }
-    public function hidden():Factory
+    public function hidden(): OfficeFactory
     {
         return  $this->state(['hidden' => true]);
     }
