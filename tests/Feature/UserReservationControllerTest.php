@@ -25,7 +25,7 @@ class UserReservationControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->getJson(route('api.reservations.show'));
+        $response = $this->getJson(route('api.user.reservations.show'));
         $response->assertJsonCount(2, 'data')
             ->assertJsonStructure(['data', 'meta', 'links'])
             ->assertJsonStructure(['data' => ['*' => ['id', 'office']]])
@@ -48,7 +48,7 @@ class UserReservationControllerTest extends TestCase
             ['start_date' => '2021-02-25', 'end_date' => '2021-03-01'],
             ['start_date' => '2021-05-25', 'end_date' => '2021-06-01'],
             //in the range belongs to a different user
-            ['start_date' => '2021-03-05', 'end_date' => '2021-03-21','user_id'=>$anotherUser=User::factory()->create()->id]
+            ['start_date' => '2021-03-05', 'end_date' => '2021-03-21','user_id'=>User::factory()->create()->id]
 
         )->count(6)
         ->for($user)
@@ -56,7 +56,7 @@ class UserReservationControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->getJson(route('api.reservations.show')."?".http_build_query([
+        $response = $this->getJson(route('api.user.reservations.show')."?".http_build_query([
             'from_date'=>$fromDate,
             'to_date'=>$toDate
        ]));
@@ -81,7 +81,7 @@ class UserReservationControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->getJson(route('api.reservations.show')."?".http_build_query(['status'=>ReservationStatus::STATUS_ACTIVE->value]));
+        $response = $this->getJson(route('api.user.reservations.show')."?".http_build_query(['status'=>ReservationStatus::STATUS_ACTIVE->value]));
 
         $response->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.id', $reservation1->id)
@@ -103,7 +103,7 @@ class UserReservationControllerTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->getJson(route('api.reservations.show')."?".http_build_query(['office_id'=>$office->id]));
+        $response = $this->getJson(route('api.user.reservations.show')."?".http_build_query(['office_id'=>$office->id]));
 
         $response->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $reservation1->id)

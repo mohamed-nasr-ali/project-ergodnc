@@ -1,6 +1,10 @@
 <?php
 
-use App\Http\Controllers\{OfficeController, OfficeImageController, TagController, UserReservationController};
+use App\Http\Controllers\{HostReservationController,
+    OfficeController,
+    OfficeImageController,
+    TagController,
+    UserReservationController};
 use Illuminate\Support\Facades\Route;
 
 // Tags...
@@ -29,8 +33,10 @@ Route::delete('offices/{office}/images/{image:id}',[OfficeImageController::class
 
 
 //User Reservations
-Route::get('/reservations',[UserReservationController::class,'index'])
+Route::get('/user/reservations',[UserReservationController::class,'index'])
     ->middleware(['auth:sanctum','verified','ability:reservation.show'])
-    ->name('reservations.show');
+    ->name('user.reservations.show');
 
-//Route::get('/host/reservations',[\App\Http\Controllers\UserReservationController::class,'index']);
+Route::get('/host/reservations',[HostReservationController::class,'index'])
+    ->middleware(['auth:sanctum','verified','ability:reservation.show'])
+    ->name('host.reservations.show');
