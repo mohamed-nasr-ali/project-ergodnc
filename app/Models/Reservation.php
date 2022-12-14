@@ -12,13 +12,14 @@ class Reservation extends Model
 {
     use HasFactory;
 
-    protected $fillable=['user_id','office_id','price','status','start_date','end_date'];
+    protected $fillable=['user_id','office_id','price','status','start_date','end_date','wifi_password'];
     protected $casts = [
         'user_id'=>'integer',
         'price' => 'integer',
         'status' => ReservationStatus::class,
         'start_date' => 'immutable_date',
         'end_date' => 'immutable_date',
+        'wifi_password'=>'encrypted'
     ];
 
     public function user(): BelongsTo

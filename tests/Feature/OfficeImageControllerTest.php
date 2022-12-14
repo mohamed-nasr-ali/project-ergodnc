@@ -32,7 +32,8 @@ class OfficeImageControllerTest extends TestCase
 
         $response->assertCreated();
 
-        Storage::assertExists($response->json('data.path'));
+        $this->assertFileExists($response->json('data.path'));
+
     }
 
     /** @test */

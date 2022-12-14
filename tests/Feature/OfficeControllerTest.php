@@ -337,7 +337,7 @@ class OfficeControllerTest extends TestCase
 
     public function testItListOfficesIncludingHiddenAndApprovedIfFilteringForCurrentLoggedInUser(): void
     {
-        $user=User::factory()->create();
+        $user = User::factory()->create();
         Office::factory(3)->for($user)->create();
 
         Office::factory()->for($user)->pending()->create();
@@ -358,13 +358,13 @@ class OfficeControllerTest extends TestCase
         $office = Office::factory()->for($user)->create();
 
 
-       $image= $office->images()->create(['path'=>'image.jpg']);
+        $image = $office->images()->create(['path' => 'image.jpg']);
 
         $this->actingAs($user);
 
         $response = $this->putJson(
             route('api.offices.update', $office),
-            ['featured_image_id' =>$image->id]
+            ['featured_image_id' => $image->id]
         );
 
         $response->assertOk()
@@ -390,5 +390,31 @@ class OfficeControllerTest extends TestCase
         Storage::assertMissing('office_featured_image.jpg');
     }
 
+    /** @test */
+    public function itFilterByTags(): void
+    {
+        $tags = Tag::factory(2)->create();
 
+        $office = Office::factory()->hasAttached($tags)->create();
+        Office::factory()->hasAttached($tags->first())->create();
+        Office::factory()->create();
+
+        $response = $this->getJson(
+            route('api.offices.index')."?".http_build_query(['tags' => $tags->pluck('id')->toArray()])
+        );
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $office->id);
+    }
+
+    /** @test */
+    public function itShowFullPathOfImage(): void
+    {
+        $office = Office::factory()->create();
+        $office->images()->create(['path' => 'image.jpg']);
+
+        $response = $this->getJson(route('api.offices.index'));
+        $response->assertOk()
+            ->assertJsonPath('data.0.images.0.path',storage_path('app/image.jpg'));
+    }
 }
