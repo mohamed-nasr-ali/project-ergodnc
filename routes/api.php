@@ -36,7 +36,11 @@ Route::delete('offices/{office}/images/{image:id}',[OfficeImageController::class
 Route::get('/user/reservations',[UserReservationController::class,'index'])
     ->middleware(['auth:sanctum','verified','ability:reservation.show'])
     ->name('user.reservations.show');
+Route::post('/user/reservations',[UserReservationController::class,'create'])
+    ->middleware(['auth:sanctum','verified','ability:reservation.create'])
+    ->name('user.reservations.create');
 
+//Host Reservations
 Route::get('/host/reservations',[HostReservationController::class,'index'])
     ->middleware(['auth:sanctum','verified','ability:reservation.show'])
     ->name('host.reservations.show');
